@@ -6,7 +6,7 @@ const { default: mongoose } = require('mongoose');
 const uri = "mongodb+srv://admin:admin@pricenotifyer.qomwx.mongodb.net/sample_mflix?retryWrites=true&w=majority&appName=PriceNotifyer";
 
 const router = require("./routes/index");
-
+const cronJobs = require("./CronJobs");
 
 const app = express()
 app.use(cors());
@@ -21,12 +21,18 @@ async function start() {
         await mongoose.connect(uri, {})
         app.listen(port, () => { // listen - запускает сервер
             console.log('server has been started')
+            cronJobs.startParsingJob();
+
         })
 
     } catch (e) {
         console.log(e);
     }
 }
+
+
+
+
 
 start()
 
