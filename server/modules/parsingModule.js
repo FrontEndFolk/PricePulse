@@ -55,18 +55,27 @@ class ParsingModule {
         try {
             return await this.callPython(script, url);
         } catch (err) {
-            //console.error('Ошибка при вызове Python:', err);
             return null;
         }
     }
 
     async parseAll(productList) {
+        const results = [];
+
         for (const { article, marketplace } of productList) {
             const data = await module.exports.parse(article, marketplace);
-            if (!data) {
+            if (data) {
+                results.push({ article, marketplace, ...data });
+            } else {
                 console.warn(`Пропущен товар ${marketplace}:${article} — не удалось получить данные`);
-                continue;
             }
+        }
+        return results;
+    }
+
+    async saveToDatabase(productsData) {
+        for (const data of productsData) {
+            const { article, marketplace } = data;
 
             const existing = await getAsync(
                 'SELECT id, price, sale_price FROM products WHERE article = ? AND marketplace = ?',
@@ -74,7 +83,6 @@ class ParsingModule {
             );
 
             if (existing) {
-                // Обновляем продукт
                 await runAsync(`
                     UPDATE products
                     SET 
@@ -95,10 +103,8 @@ class ParsingModule {
 
                 const productId = existing.id;
 
-                // Удаляем старые размеры
                 await runAsync('DELETE FROM sizes WHERE product_id = ?', [productId]);
 
-                // Вставляем новые размеры
                 for (const size of data.sizes) {
                     await runAsync(
                         'INSERT INTO sizes (product_id, size, stock) VALUES (?, ?, ?)',
@@ -107,7 +113,6 @@ class ParsingModule {
                 }
 
             } else {
-                // Вставляем новый продукт
                 const insertProductStmt = await new Promise((resolve, reject) => {
                     db.run(`
                         INSERT INTO products (
@@ -130,7 +135,6 @@ class ParsingModule {
 
                 const productId = insertProductStmt.lastID;
 
-                // Вставляем размеры
                 for (const size of data.sizes) {
                     await runAsync(
                         'INSERT INTO sizes (product_id, size, stock) VALUES (?, ?, ?)',

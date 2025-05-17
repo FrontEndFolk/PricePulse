@@ -2,12 +2,16 @@ const express = require('express')
 const cors = require('cors');
 const port = 3000
 
-const { default: mongoose } = require('mongoose');
-const uri = "mongodb+srv://admin:admin@pricenotifyer.qomwx.mongodb.net/sample_mflix?retryWrites=true&w=majority&appName=PriceNotifyer";
-
 const parser = require('./modules/parsingModule');
-const router = require("./routes/index");
+const router = require('./routes/index');
+const notificator = require('./modules/notificationModule');
 const cronJobs = require("./CronJobs");
+
+const USER_CHAT_ID = 957059612;
+const productsList = [
+    { article: 244470768, marketplace: 'WB' },
+    { article: 240045188, marketplace: 'WB' }
+];
 
 const app = express()
 app.use(cors());
@@ -18,30 +22,31 @@ app.get('/', async (req, res) => {
 
 async function start() {
     try {
-        await mongoose.connect(uri, {});
-        app.listen(port, () => {
-            console.log('server has been started');
-
-            const productsList = [
-                { article: 244470768, marketplace: 'WB' },
-                { article: 240045188, marketplace: 'WB' }
-            ];
-
+        app.listen(port, async () => {
+            console.log('Сервер запущен');
             parser.parseAll(productsList)
-                .then(() => {
-                    console.log('Парсинг завершён успешно');
-                })
-                .catch(err => {
-                    console.error('Ошибка при парсинге товаров:', err);
-                });
+            .then(async (parsedResults) => {
+                await parser.saveToDatabase(parsedResults);
+                console.log('Парсинг и сохранение завершены');
+                
+                for (const product of parsedResults) {
+                    await notificator.sendNotification({
+                        chat_id: USER_CHAT_ID,
+                        text: `Товар обновлён: ${product.name}\nЦена: ${product.sale_price}₽`,
+                        image_url: product.image_url || null
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Ошибка при парсинге:', err);
+            });
         });
-
     } catch (e) {
         console.error('Ошибка запуска сервера:', e);
     }
 }
 
-start()
+start();
 
 
 
