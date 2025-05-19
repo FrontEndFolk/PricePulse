@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors');
-const port = 3000
+const port = 5000
 
 const parser = require('./modules/parsingModule');
 const router = require('./routes/index');
@@ -14,6 +14,8 @@ const productsList = [
 ];
 
 const app = express()
+app.use(express.urlencoded());
+app.use(express.json());
 app.use(cors());
 app.use("/", router);
 app.get('/', async (req, res) => {
@@ -25,21 +27,21 @@ async function start() {
         app.listen(port, async () => {
             console.log('Сервер запущен');
             parser.parseAll(productsList)
-            .then(async (parsedResults) => {
-                await parser.saveToDatabase(parsedResults);
-                console.log('Парсинг и сохранение завершены');
-                
-                for (const product of parsedResults) {
-                    await notificator.sendNotification({
-                        chat_id: USER_CHAT_ID,
-                        text: `Товар обновлён: ${product.name}\nЦена: ${product.sale_price}₽`,
-                        image_url: product.image_url || null
-                    });
-                }
-            })
-            .catch(err => {
-                console.error('Ошибка при парсинге:', err);
-            });
+                .then(async (parsedResults) => {
+                    await parser.saveToDatabase(parsedResults);
+                    console.log('Парсинг и сохранение завершены');
+
+                    // for (const product of parsedResults) {
+                    //     await notificator.sendNotification({
+                    //         chat_id: USER_CHAT_ID,
+                    //         text: `Товар обновлён: ${product.name}\nЦена: ${product.sale_price}₽`,
+                    //         image_url: product.image_url || null
+                    //     });
+                    // }
+                })
+                .catch(err => {
+                    console.error('Ошибка при парсинге:', err);
+                });
         });
     } catch (e) {
         console.error('Ошибка запуска сервера:', e);

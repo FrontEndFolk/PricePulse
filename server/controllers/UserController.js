@@ -1,5 +1,5 @@
 const User = require('../models/User.js')
-
+const db = require('../modules/db.js');
 //создать инстанс модуля парсинга - parsingModule
 const ParsingModule = require('../modules/parsingModule.js');
 
@@ -9,11 +9,20 @@ class UserController {
         res.send(user);
     }
 
-    async parse(req, res, next) {
-        const url = req.url;
-        const filters = req.filters;
+    async index(req, res, next) {
+        db.all("SELECT * FROM products", [], (err, rows) => {
+            if (err) {
+                throw err;
+            }
+            res.send(rows)
+        });
+    }
 
-        let json = ParsingModule.parse(url);
+    async parse(req, res, next) {
+        //const url = req.url;
+        //const filters = req.filters;
+        console.log(req.body);
+        //let json = ParsingModule.parse(url);
 
     }
 

@@ -1,4 +1,4 @@
-    const path = require('path');
+const path = require('path');
 const iconv = require('iconv-lite');
 const { spawn } = require('child_process');
 
