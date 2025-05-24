@@ -25,23 +25,24 @@ app.get('/', async (req, res) => {
 async function start() {
     try {
         app.listen(port, async () => {
-            console.log('Сервер запущен');
-            parser.parseAll(productsList)
-                .then(async (parsedResults) => {
-                    await parser.saveToDatabase(parsedResults);
-                    console.log('Парсинг и сохранение завершены');
+            console.log('Сервер запущенa на 5000');
+            cronJobs.startParsingJob();
+            // parser.parseAll(productsList)
+            //     .then(async (parsedResults) => {
+            //         await parser.saveToDatabase(parsedResults);
+            //         console.log('Парсинг и сохранение завершены');
 
-                    // for (const product of parsedResults) {
-                    //     await notificator.sendNotification({
-                    //         chat_id: USER_CHAT_ID,
-                    //         text: `Товар обновлён: ${product.name}\nЦена: ${product.sale_price}₽`,
-                    //         image_url: product.image_url || null
-                    //     });
-                    // }
-                })
-                .catch(err => {
-                    console.error('Ошибка при парсинге:', err);
-                });
+            //         // for (const product of parsedResults) {
+            //         //     await notificator.sendNotification({
+            //         //         chat_id: USER_CHAT_ID,
+            //         //         text: `Товар обновлён: ${product.name}\nЦена: ${product.sale_price}₽`,
+            //         //         image_url: product.image_url || null
+            //         //     });
+            //         // }
+            //     })
+            //     .catch(err => {
+            //         console.error('Ошибка при парсинге:', err);
+            //     });
         });
     } catch (e) {
         console.error('Ошибка запуска сервера:', e);

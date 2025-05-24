@@ -3,6 +3,7 @@ const util = require('util');
 const db = require('./db.js');
 const iconv = require('iconv-lite');
 const { spawn } = require('child_process');
+const fetchAll = require('./sql.js');
 
 // Наобещал за щёку
 const runAsync = util.promisify(db.run.bind(db));
@@ -59,10 +60,11 @@ class ParsingModule {
         }
     }
 
-    async parseAll(productList) {
+    async parseAll() {
         const results = [];
+        const products = await fetchAll(db, "SELECT * FROM products");
 
-        for (const { article, marketplace } of productList) {
+        for (const { article, marketplace } of products) {
             const data = await module.exports.parse(article, marketplace);
             if (data) {
                 results.push({ article, marketplace, ...data });
@@ -152,13 +154,3 @@ class ParsingModule {
 }
 
 module.exports = new ParsingModule();
-
-/* 
-db.all('SELECT * FROM products', [], (err, rows) => {
-    if (err) {
-        console.error(err.message);
-    } else {
-        console.log(rows);
-    }
-}); 
-*/

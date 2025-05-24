@@ -43,9 +43,10 @@ class UserController {
 
     }
 
-    //TODO перенести кудаф-то  в другое место 
-    cronTest() {
-        let jsonArray = ParsingModule.parseAll();
+    async cronTest() {
+        let jsonArray = await ParsingModule.parseAll();
+
+        console.log(jsonArray);
         // для каждой строки js получить соответсвующую строчку бд (навенрео не очень хорошо так спасить запросы к бд но насрать в целом это фоновый таск)
         // если данные не совпадают 
         // отправить уведомление 
