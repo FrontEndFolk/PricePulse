@@ -38,47 +38,58 @@ export default function App() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <form onSubmit={(e) => handleSubmit(e)} className="space-y-4">
-        Ссылка на товар
-        <Input
-          type="text"
-          name="link"
-          placeholder="Name"
-          required
-        />
-        <br />
-        <br />
-        Отправлять уведомление когда:
-        <br />
-        <br />
-        Стало ниже цены:
-        <Input
-          type="text"
-          name="filter_price"
-          placeholder="Name"
-          required
-        />
-        <br />
-        В количестве:
-        <Input
-          type="text"
-          name="amount"
-          placeholder="Name"
-          required
-        />
-        <br />
-        Для размера(опционально):
-        <Input
-          type="text"
-          name="size"
-          placeholder="Name"
-          required
-        />
+    <div className="container">
+      <header>
+        <h2>PriceNotifier</h2>
+      </header>
+      <form className="form" onSubmit={(e) => handleSubmit(e)}>
+        <label htmlFor="">
+          <span>Ссылка на товар</span>
+          <Input
+            type="text"
+            name="link"
+            placeholder="https://www.wildberries.ru/catalog/"
+            required
+          />
+        </label>
+
+        <p>Отправлять уведомление когда:</p>
+
+        <label htmlFor="">
+          <span>Стало ниже цены:</span>
+          <Input
+            type="text"
+            name="filter_price"
+            placeholder="1000"
+            required
+          />
+        </label>
+
+        <label htmlFor="">
+          <span>В количестве:</span>
+          <Input
+            type="number"
+            name="amount"
+            placeholder="10"
+            required
+          />
+        </label>
+
+        <label htmlFor="">
+          <span>
+            Для размера(опционально):</span>
+          <Input
+            type="number"
+            name="size"
+            placeholder="40"
+            required />
+        </label>
+
+
         <Button type="submit">Submit</Button>
       </form>
 
-      <div className="mt-8 space-y-4">
+      <div className="content">
         {data.length > 0 ? (
           data.map((item, index) => (
             <Card key={index} item={item} />

@@ -60,7 +60,7 @@ class UserController {
         let jsonArray = await ParsingModule.parseAll(dbData);
 
         dbData.forEach((row, index) => {
-            if (row.price != jsonArray[i].price) //TODO пример условия. в таблицу надо добавить колонки фильтром и с ними все сравинать и потом отсюда отправлять уведомление
+            if (row.price != jsonArray[index].price) //TODO пример условия. в таблицу надо добавить колонки фильтром и с ними все сравинать и потом отсюда отправлять уведомление
             {
                 //обновить данные в бд хотя их вроде parseAll обновляет у тебя хз
                 //отправить уведомление

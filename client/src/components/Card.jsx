@@ -2,9 +2,22 @@ import React from 'react';
 
 export default function Card({ item }) {
     return (
-        <div className="border rounded-xl p-4 shadow-sm bg-white">
-            <p><strong>id:</strong>{item.id}</p>
-            <p><strong>article:</strong>{item.article}</p>
+        <div className="card">
+            <div className="card__photo">
+                <img src="https://placehold.co/200x200" alt="" />
+            </div>
+            <div className="card__content">
+                <p className="card__product-name">
+                    Название товара: {item.name}
+                </p>
+                <p className="card__product-price">
+                    Текущая цена: {item.price}
+                </p>
+                <span className="card__product-article">
+                    Артикул: {item.article}
+                </span>
+            </div>
+
         </div>
     );
 }
