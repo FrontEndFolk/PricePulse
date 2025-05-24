@@ -60,9 +60,8 @@ class ParsingModule {
         }
     }
 
-    async parseAll() {
+    async parseAll(products) {
         const results = [];
-        const products = await fetchAll(db, "SELECT * FROM products");
 
         for (const { article, marketplace } of products) {
             const data = await module.exports.parse(article, marketplace);

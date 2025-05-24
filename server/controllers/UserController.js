@@ -2,6 +2,7 @@ const User = require('../models/User.js')
 const db = require('../modules/db.js');
 //создать инстанс модуля парсинга - parsingModule
 const ParsingModule = require('../modules/parsingModule.js');
+const fetchAll = require('../modules/sql.js');
 
 class UserController {
     async test(req, res, next) {
@@ -19,7 +20,12 @@ class UserController {
     }
 
     async parse(req, res, next) {
-        let { link, filter_price, amount, size } = req.body;
+        let {
+            link,
+            filter_price,
+            amount = null,
+            size = null
+        } = req.body;
 
         let json = await ParsingModule.parse(link, "WB");
 
@@ -36,7 +42,11 @@ class UserController {
         } = json || {};
 
         if (name != null) {
-            db.run(`INSERT INTO products(article,marketplace,name,price,sale_price,price_old,sale_price_old,total_stock,image_url) VALUES(?,?,?,?,?,?,?,?,?)`, [article, "WB", name, price, sale_price, price, sale_price, total_quantity, ""], (err) => { console.log(err) });
+            db.run(
+                `INSERT INTO products(article,marketplace,name,price,sale_price,price_old,sale_price_old,total_stock,image_url) VALUES(?,?,?,?,?,?,?,?,?)`,
+                [article, "WB", name, price, sale_price, price, sale_price, total_quantity, ""],
+                (err) => { console.log(err) }
+            );
         }
 
         res.send("ok");
@@ -44,13 +54,20 @@ class UserController {
     }
 
     async cronTest() {
-        let jsonArray = await ParsingModule.parseAll();
+
+        const dbData = await fetchAll(db, "SELECT * FROM products");
+
+        let jsonArray = await ParsingModule.parseAll(dbData);
+
+        dbData.forEach((row, index) => {
+            if (row.price != jsonArray[i].price) //TODO пример условия. в таблицу надо добавить колонки фильтром и с ними все сравинать и потом отсюда отправлять уведомление
+            {
+                //обновить данные в бд хотя их вроде parseAll обновляет у тебя хз
+                //отправить уведомление
+            }
+        });
 
         console.log(jsonArray);
-        // для каждой строки js получить соответсвующую строчку бд (навенрео не очень хорошо так спасить запросы к бд но насрать в целом это фоновый таск)
-        // если данные не совпадают 
-        // отправить уведомление 
-        // обновить данные 
     }
 }
 
