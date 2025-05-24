@@ -4,28 +4,21 @@ import Button from './components/Button';
 import Card from './components/Card';
 
 export default function App() {
-  const [submitted, setSubmitted] = useState(false);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    // Fetch data from backend API
-    fetch('http://localhost:5000/user/index') // <-- replace with your GET API endpoint
+    console.log("useEffect");
+    fetch('http://localhost:5000/user/index')
       .then(response => response.json())
       .then(data => setData(data))
       .catch(error => console.error('Error fetching data:', error));
-  }, [submitted]);
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData(prev => ({ ...prev, [name]: value }));
-  // };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       let payload = new FormData(e.target)
-
-      await fetch('http://localhost:5000/user/parse', { // <-- replace with your POST API endpoint
+      await fetch('http://localhost:5000/user/parse', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -37,7 +30,8 @@ export default function App() {
           size: payload.get('size')
         }),
       });
-      setSubmitted(prev => !prev); // Trigger re-fetch
+
+      window.location.reload();
     } catch (error) {
       console.error('Error submitting form:', error);
     }
@@ -61,7 +55,7 @@ export default function App() {
         Стало ниже цены:
         <Input
           type="text"
-          name="price"
+          name="filter_price"
           placeholder="Name"
           required
         />

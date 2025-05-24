@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default function Card({ item }) {
-    console.log(item)
     return (
         <div className="border rounded-xl p-4 shadow-sm bg-white">
             <p><strong>id:</strong>{item.id}</p>

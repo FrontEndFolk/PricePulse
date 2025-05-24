@@ -19,10 +19,27 @@ class UserController {
     }
 
     async parse(req, res, next) {
-        //const url = req.url;
-        //const filters = req.filters;
-        console.log(req.body);
-        //let json = ParsingModule.parse(url);
+        let { link, filter_price, amount, size } = req.body;
+
+        let json = await ParsingModule.parse(link, "WB");
+
+        console.log(json);
+
+        let {
+            name = null,
+            article = null,
+            price = 0,
+            sale_price = 0,
+            color = 'unknown',
+            sizes = [],
+            total_quantity = 0
+        } = json || {};
+
+        if (name != null) {
+            db.run(`INSERT INTO products(article,marketplace,name,price,sale_price,price_old,sale_price_old,total_stock,image_url) VALUES(?,?,?,?,?,?,?,?,?)`, [article, "WB", name, price, sale_price, price, sale_price, total_quantity, ""], (err) => { console.log(err) });
+        }
+
+        res.send("ok");
 
     }
 
