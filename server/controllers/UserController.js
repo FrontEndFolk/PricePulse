@@ -11,7 +11,7 @@ class UserController {
     }
 
     async index(req, res, next) {
-        db.all("SELECT * FROM products", [], (err, rows) => {
+        db.all("SELECT * FROM products ORDER BY products.id DESC ", [], (err, rows) => {
             if (err) {
                 throw err;
             }
