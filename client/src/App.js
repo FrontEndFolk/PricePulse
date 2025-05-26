@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Input from './components/Input';
 import Button from './components/Button';
 import Card from './components/Card';
-
+import { AppContext } from './AppProvider';
+import { Link } from "react-router";
 export default function App() {
   const [data, setData] = useState([]);
 
@@ -37,10 +38,15 @@ export default function App() {
     }
   };
 
+  const { user, setUser } = useContext(AppContext);
+  console.log(user);
   return (
     <div className="container">
       <header>
         <h2>PriceNotifier</h2>
+        <Link to="/signup">signup</Link>
+        <Link to="/login">login</Link>
+        <Link to="/profile">profile</Link>
       </header>
       <form className="form" onSubmit={(e) => handleSubmit(e)}>
         <label htmlFor="">

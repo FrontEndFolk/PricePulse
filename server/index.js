@@ -1,4 +1,6 @@
 const express = require('express')
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const cors = require('cors');
 const port = 5000
 
@@ -14,19 +16,34 @@ const productsList = [
 ];
 
 const app = express()
+
+// parse request body
 app.use(express.urlencoded());
 app.use(express.json());
-app.use(cors());
+
+// allow requests
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
+
+// auth
+app.use(cookieParser());
+app.use(session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+}));
+
+// rotuer
 app.use("/", router);
-app.get('/', async (req, res) => {
-    res.send('Hello World!')
-})
 
 async function start() {
     try {
         app.listen(port, async () => {
             console.log('Сервер запущенa на 5000');
-            cronJobs.startParsingJob();
+            //cronJobs.startParsingJob();
             // parser.parseAll(productsList)
             //     .then(async (parsedResults) => {
             //         await parser.saveToDatabase(parsedResults);

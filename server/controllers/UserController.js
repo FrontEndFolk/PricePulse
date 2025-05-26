@@ -2,7 +2,8 @@ const User = require('../models/User.js')
 const db = require('../modules/db.js');
 //создать инстанс модуля парсинга - parsingModule
 const ParsingModule = require('../modules/parsingModule.js');
-const fetchAll = require('../modules/sql.js');
+const { fetchAll, getUserByEmail, createUser } = require('../modules/sql.js');
+const bcrypt = require("bcrypt");
 
 class UserController {
     async test(req, res, next) {
@@ -51,6 +52,57 @@ class UserController {
 
         res.send("ok");
 
+    }
+
+    async signup(req, res) {
+        const { email, password } = req.body;
+
+        const user = await getUserByEmail(db, email);
+
+        console.log("getByEmail user: " + user);
+
+        if (user) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        const passwordHash = await bcrypt.hash(password, 10);
+        createUser(db, [email, passwordHash, null]);
+        req.session.user = { email };
+
+        res.json({ message: "Signup successful" });
+    }
+
+    async login(req, res) {
+
+        const { email, password } = req.body;
+
+        const user = await getUserByEmail(db, email);
+
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid password" });
+        }
+        req.session.user = { email };
+        res.json({ message: "Login successful" });
+    }
+
+    async logout(req, res) {
+        req.session.destroy((err) => {
+            if (err) return res.status(500).json({ message: "Logout failed" });
+            res.clearCookie("connect.sid");
+            res.json({ message: "Logged out successfully" });
+        });
+    }
+
+    async current(req, res) {
+        if (req.session.user === undefined) {
+            return res.json({ user: null });
+        }
+        return res.json(await getUserByEmail(db, req.session.user.email));
     }
 
     async cronTest() {
