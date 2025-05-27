@@ -7,6 +7,7 @@ const port = 5000
 const parser = require('./modules/parsingModule');
 const router = require('./routes/index');
 const notificator = require('./modules/notificationModule');
+const bot = require('./modules/telegramBot');
 const cronJobs = require("./CronJobs");
 
 const USER_CHAT_ID = 957059612;
@@ -42,7 +43,7 @@ app.use("/", router);
 async function start() {
     try {
         app.listen(port, async () => {
-            console.log('Сервер запущенa на 5000');
+            console.log('Сервер запущен на 5000');
             //cronJobs.startParsingJob();
             // parser.parseAll(productsList)
             //     .then(async (parsedResults) => {

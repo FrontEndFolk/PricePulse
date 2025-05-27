@@ -9,4 +9,5 @@ router.post('/signup', userController.signup);
 router.post('/login', userController.login);
 router.post('/logout', userController.logout);
 router.get('/current', userController.current);
+router.get('/telegram-link', userController.telegramLink);
 module.exports = router
