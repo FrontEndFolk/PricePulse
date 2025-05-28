@@ -90,7 +90,8 @@ export default function App() {
                   />
                 </label>
 
-                <label htmlFor="">
+                
+                {/* <label htmlFor="">
                   <span>
                     Для размера(опционально):</span>
                   <Input
@@ -98,7 +99,7 @@ export default function App() {
                     name="size"
                     placeholder="40"
                     required />
-                </label>
+                </label> */}
 
 
                 <Button type="submit">Submit</Button>

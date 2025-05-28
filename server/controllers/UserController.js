@@ -2,12 +2,19 @@ const User = require('../models/User.js')
 const db = require('../modules/db.js');
 const util = require("util");
 const crypto = require("crypto");
-//создать инстанс модуля парсинга - parsingModule
-const ParsingModule = require('../modules/parsingModule.js');
+const parser = require('../modules/parsingModule.js');
 const { fetchAll, getUserByEmail, getUserById, createUser } = require('../modules/sql.js');
 const bcrypt = require("bcrypt");
 const getAsync = util.promisify(db.get.bind(db));
 const runAsync = util.promisify(db.run.bind(db));
+const fetchOne = (db, query, params = []) => {
+    return new Promise((resolve, reject) => {
+        db.get(query, params, (err, row) => {
+            if (err) return reject(err);
+            resolve(row);
+        });
+    });
+};
 
 class UserController {
     async test(req, res, next) {
@@ -38,7 +45,7 @@ class UserController {
 
         console.log(req.body)
 
-        let json = await ParsingModule.parse(link, "WB");
+        let json = await parser.parse(link, "WB");
 
         console.log(json);
 
@@ -111,20 +118,49 @@ class UserController {
     }
 
     async cronTest() {
+        const originalProducts = await fetchAll(db, "SELECT * FROM products");
 
-        const dbData = await fetchAll(db, "SELECT * FROM products");
+        const parsedResults = await parser.parseAll(originalProducts);
+        await parser.saveToDatabase(parsedResults);
 
-        let jsonArray = await ParsingModule.parseAll(dbData);
+        const updatedProducts = await fetchAll(db, "SELECT * FROM products");
 
-        dbData.forEach((row, index) => {
-            if (row.price != jsonArray[index].price) //TODO пример условия. в таблицу надо добавить колонки фильтром и с ними все сравинать и потом отсюда отправлять уведомление
-            {
-                //обновить данные в бд хотя их вроде parseAll обновляет у тебя хз
-                //отправить уведомление
+        for (const product of updatedProducts) {
+            const user = await fetchOne(db, 'SELECT chat_id FROM users WHERE id = ?', [product.user_id]);
+            if (!user || !user.chat_id) continue;
+
+            let notify = false;
+            let reason = "";
+
+            if (product.filter_price && product.sale_price <= product.filter_price) {
+                notify = true;
+                reason += `Цена упала до ${product.sale_price}₽ (фильтр: ≤ ${product.filter_price})\n`;
             }
-        });
 
-        console.log(jsonArray);
+            if (product.filter_stock && product.total_stock >= product.filter_stock) {
+                notify = true;
+                reason += `В наличии: ${product.total_stock} шт (фильтр: ≥ ${product.filter_stock})\n`;
+            }
+
+            if (product.filter_size) {
+                const matchingSize = await fetchOne(db, `
+                    SELECT stock FROM sizes WHERE product_id = ? AND size = ?
+                `, [product.id, product.filter_size]);
+
+                if (matchingSize && matchingSize.stock >= 1) {
+                    notify = true;
+                    reason += `👕 Размер ${product.filter_size} в наличии: ${matchingSize.stock} шт\n`;
+                }
+            }
+
+            if (notify) {
+                await notificator.sendNotification({
+                    chat_id: user.chat_id,
+                    text: `Обновление по товару: ${product.name}\n${reason}\nhttps://www.wildberries.ru/catalog/${product.article}/detail.aspx`,
+                    image_url: product.image_url || null
+                });
+            }
+        }
     }
 
     async telegramLink(req, res) {
