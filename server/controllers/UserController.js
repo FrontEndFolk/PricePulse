@@ -3,11 +3,12 @@ const db = require('../modules/db.js');
 const util = require("util");
 const crypto = require("crypto");
 const parser = require('../modules/parsingModule.js');
+const { sendNotification } = require('../modules/telegramBot.js');
 const { fetchAll, getUserByEmail, getUserById, createUser } = require('../modules/sql.js');
 const bcrypt = require("bcrypt");
 const getAsync = util.promisify(db.get.bind(db));
 const runAsync = util.promisify(db.run.bind(db));
-const fetchOne = (db, query, params = []) => {
+const fetchOne = async function fetchOne(db, query, params = []) {
     return new Promise((resolve, reject) => {
         db.get(query, params, (err, row) => {
             if (err) return reject(err);
@@ -126,7 +127,7 @@ class UserController {
         const updatedProducts = await fetchAll(db, "SELECT * FROM products");
 
         for (const product of updatedProducts) {
-            const user = await fetchOne(db, 'SELECT chat_id FROM users WHERE id = ?', [product.user_id]);
+            const user = await fetchOne(db, 'SELECT chat_id FROM users WHERE id = ?', [product.userId]);
             if (!user || !user.chat_id) continue;
 
             let notify = false;
@@ -137,26 +138,26 @@ class UserController {
                 reason += `Цена упала до ${product.sale_price}₽ (фильтр: ≤ ${product.filter_price})\n`;
             }
 
-            if (product.filter_stock && product.total_stock >= product.filter_stock) {
+            if (product.amount && product.total_stock >= product.amount) {
                 notify = true;
-                reason += `В наличии: ${product.total_stock} шт (фильтр: ≥ ${product.filter_stock})\n`;
+                reason += `В наличии: ${product.total_stock} шт (фильтр: ≥ ${product.amount})\n`;
             }
 
-            if (product.filter_size) {
+            if (product.p_size) {
                 const matchingSize = await fetchOne(db, `
                     SELECT stock FROM sizes WHERE product_id = ? AND size = ?
-                `, [product.id, product.filter_size]);
+                `, [product.id, product.size]);
 
                 if (matchingSize && matchingSize.stock >= 1) {
                     notify = true;
-                    reason += `👕 Размер ${product.filter_size} в наличии: ${matchingSize.stock} шт\n`;
+                    reason += `Размер ${product.p_size} в наличии: ${matchingSize.stock} шт\n`;
                 }
             }
 
             if (notify) {
-                await notificator.sendNotification({
+                await sendNotification({
                     chat_id: user.chat_id,
-                    text: `Обновление по товару: ${product.name}\n${reason}\nhttps://www.wildberries.ru/catalog/${product.article}/detail.aspx`,
+                    text: `Обновление по товару: ${product.name}\n\n${reason}\nhttps://www.wildberries.ru/catalog/${product.article}/detail.aspx`,
                     image_url: product.image_url || null
                 });
             }
