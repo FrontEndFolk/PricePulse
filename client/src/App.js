@@ -9,7 +9,7 @@ export default function App() {
 
   useEffect(() => {
     console.log("useEffect");
-    fetch('http://localhost:5000/user/index')
+    fetch('http://localhost:5000/user/index', { credentials: "include" })
       .then(response => response.json())
       .then(data => setData(data))
       .catch(error => console.error('Error fetching data:', error));
@@ -21,12 +21,13 @@ export default function App() {
       let payload = new FormData(e.target)
       await fetch('http://localhost:5000/user/parse', {
         method: 'POST',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           link: payload.get('link'),
-          price: payload.get('price'),
+          filter_price: payload.get('filter_price'),
           amount: payload.get('amount'),
           size: payload.get('size')
         }),
@@ -41,69 +42,82 @@ export default function App() {
   const { user, setUser } = useContext(AppContext);
   console.log(user);
   return (
-    <div className="container">
-      <header>
-        <h2>PriceNotifier</h2>
-        <Link to="/signup">signup</Link>
-        <Link to="/login">login</Link>
-        <Link to="/profile">profile</Link>
-      </header>
-      <form className="form" onSubmit={(e) => handleSubmit(e)}>
-        <label htmlFor="">
-          <span>Ссылка на товар</span>
-          <Input
-            type="text"
-            name="link"
-            placeholder="https://www.wildberries.ru/catalog/"
-            required
-          />
-        </label>
+    <>
+      {
+        user === null || user.user === null ?
+          (<div>
+            <Link to="/signup">вы не авторизованы. зарегистрируйтесь.</Link>
+          </div>)
+          :
+          (
+            < div className="container" >
+              <header>
+                <h2>PriceNotifier</h2>
+                <Link className='nav_link' to="/signup">signup</Link>
+                <Link className='nav_link' to="/login">login</Link>
+                <Link className='nav_link' to="/profile">profile</Link>
+              </header>
+              <form className="form" onSubmit={(e) => handleSubmit(e)}>
+                <label htmlFor="">
+                  <span>Ссылка на товар</span>
+                  <Input
+                    type="text"
+                    name="link"
+                    placeholder="https://www.wildberries.ru/catalog/"
+                    required
+                  />
+                </label>
 
-        <p>Отправлять уведомление когда:</p>
+                <p>Отправлять уведомление когда:</p>
 
-        <label htmlFor="">
-          <span>Стало ниже цены:</span>
-          <Input
-            type="text"
-            name="filter_price"
-            placeholder="1000"
-            required
-          />
-        </label>
+                <label htmlFor="">
+                  <span>Стало ниже цены:</span>
+                  <Input
+                    type="text"
+                    name="filter_price"
+                    placeholder="1000"
+                    required
+                  />
+                </label>
 
-        <label htmlFor="">
-          <span>В количестве:</span>
-          <Input
-            type="number"
-            name="amount"
-            placeholder="10"
-            required
-          />
-        </label>
+                <label htmlFor="">
+                  <span>В количестве:</span>
+                  <Input
+                    type="number"
+                    name="amount"
+                    placeholder="10"
+                    required
+                  />
+                </label>
 
-        <label htmlFor="">
-          <span>
-            Для размера(опционально):</span>
-          <Input
-            type="number"
-            name="size"
-            placeholder="40"
-            required />
-        </label>
+                <label htmlFor="">
+                  <span>
+                    Для размера(опционально):</span>
+                  <Input
+                    type="number"
+                    name="size"
+                    placeholder="40"
+                    required />
+                </label>
 
 
-        <Button type="submit">Submit</Button>
-      </form>
+                <Button type="submit">Submit</Button>
+              </form>
 
-      <div className="content">
-        {data.length > 0 ? (
-          data.map((item, index) => (
-            <Card key={index} item={item} />
-          ))
-        ) : (
-          <p className="text-gray-500">No data to display.</p>
-        )}
-      </div>
-    </div>
+              <div className="content">
+                {data.length > 0 ? (
+                  data.map((item, index) => (
+                    <Card key={index} item={item} />
+                  ))
+                ) : (
+                  <p className="text-gray-500">No data to display.</p>
+                )}
+              </div>
+            </div >
+          )
+      }
+    </>
+
+
   );
 }

@@ -1,7 +1,7 @@
-import { useState, useContext } from "react";
+import { useState, useContext, Fragment } from "react";
 import { useNavigate } from "react-router";
 import { AppContext } from './AppProvider';
-
+import { Link } from "react-router";
 
 export default function LoginForm() {
     const { user, setUser } = useContext(AppContext);
@@ -31,14 +31,23 @@ export default function LoginForm() {
     };
 
     return (
-        <form onSubmit={handleLogin}>
-            <h2>Login</h2>
-            <input type="email" placeholder="Email" value={email}
-                onChange={(e) => setEmail(e.target.value)} required /><br />
-            <input type="password" placeholder="Password" value={password}
-                onChange={(e) => setPassword(e.target.value)} required /><br />
-            <button type="submit">Login</button>
-            <p>{message}</p>
-        </form>
+        <Fragment>
+            <div>
+                <Link to="/">на главную</Link>
+            </div>
+            <form onSubmit={handleLogin}>
+                <h2>Login</h2>
+                <input type="email" placeholder="Email" value={email}
+                    onChange={(e) => setEmail(e.target.value)} required /><br />
+                <input type="password" placeholder="Password" value={password}
+                    onChange={(e) => setPassword(e.target.value)} required /><br />
+                <button type="submit">Login</button>
+                <p>{message}</p>
+            </form>
+            <div>
+                <Link to="/signup">зарегистрироваться</Link>
+            </div>
+        </Fragment>
+
     );
 }

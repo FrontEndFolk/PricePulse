@@ -16,7 +16,10 @@ class UserController {
     }
 
     async index(req, res, next) {
-        db.all("SELECT * FROM products ORDER BY products.id DESC ", [], (err, rows) => {
+
+        const userId = req.session?.user?.id;
+        console.log(userId);
+        db.all("SELECT * FROM products WHERE userId = ?  ORDER BY products.id DESC", [userId], (err, rows) => {
             if (err) {
                 throw err;
             }
@@ -25,12 +28,15 @@ class UserController {
     }
 
     async parse(req, res, next) {
+        const userId = req.session?.user?.id;
         let {
             link,
             filter_price,
             amount = null,
             size = null
         } = req.body;
+
+        console.log(req.body)
 
         let json = await ParsingModule.parse(link, "WB");
 
@@ -48,8 +54,8 @@ class UserController {
 
         if (name != null) {
             db.run(
-                `INSERT INTO products(article,marketplace,name,price,sale_price,price_old,sale_price_old,total_stock,image_url) VALUES(?,?,?,?,?,?,?,?,?)`,
-                [article, "WB", name, price, sale_price, price, sale_price, total_quantity, ""],
+                `INSERT INTO products(userId,filter_price,amount,p_size,article,marketplace,name,price,sale_price,price_old,sale_price_old,total_stock,image_url) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+                [userId, filter_price, amount, size, article, "WB", name, price, sale_price, price, sale_price, total_quantity, ""],
                 (err) => { console.log(err) }
             );
         }
@@ -101,7 +107,7 @@ class UserController {
         if (!userId) return res.json({ user: null });
 
         const user = await getUserById(db, userId);
-        return res.json(user);
+        return res.json({ user: user });
     }
 
     async cronTest() {

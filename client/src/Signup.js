@@ -1,7 +1,7 @@
 import { useState, useContext } from "react";
 import { AppContext } from './AppProvider';
 import { useNavigate } from "react-router";
-
+import { Link } from "react-router";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
@@ -34,24 +34,33 @@ export default function SignUp() {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>Signup</h2>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-            /><br />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-            /><br />
-            <button type="submit">Sign Up</button>
-            <p>{message}</p>
-        </form>
+        <>
+            <div>
+                <Link to="/">на главную</Link>
+            </div>
+            <form onSubmit={handleSubmit}>
+                <h2>Signup</h2>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                /><br />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                /><br />
+                <button type="submit">Sign Up</button>
+                <p>{message}</p>
+            </form>
+            <div>
+                <Link to="/login">есть аккаунт? войти</Link>
+            </div>
+        </>
+
     );
 }

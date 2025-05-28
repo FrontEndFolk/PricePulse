@@ -100,6 +100,7 @@ p {
 }
 
 .card {
+  background-color: #fff;
   width: 100%;
   padding: 10px;
   box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
@@ -126,4 +127,13 @@ p {
   position: absolute;
   top: 10px;
   right: 5px;
+}
+
+.nav_link {
+  margin: 0 10px;
+  background-color: #fff;
+  color: black;
+  padding: 1px 5px;
+  text-decoration: none;
+  border-radius: 2px;
 }
