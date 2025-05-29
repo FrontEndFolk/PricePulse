@@ -40,8 +40,13 @@ class ParsingModule {
                     return reject(new Error(`Python exited with code ${code}`));
                 }
 
+                const jsonMatch = stdoutData.match(/{[\s\S]*}/);
+                if (!jsonMatch) {
+                    return reject(new Error("Не удалось найти JSON в выводе"));
+                }
+                
                 try {
-                    const json = JSON.parse(stdoutData);
+                    const json = JSON.parse(jsonMatch[0]);
                     resolve(json);
                 } catch (e) {
                     console.error('Ошибка JSON:', e);
@@ -52,7 +57,7 @@ class ParsingModule {
     }
 
     async parse(url, marketplace) {
-        const script = marketplace === 'WB' ? 'parse_wb.py' : 'parse_ozon.py';
+        const script = marketplace === 'OZON' ? 'parse_ozon.py' : 'parse_wb.py';
         try {
             return await this.callPython(script, url);
         } catch (err) {

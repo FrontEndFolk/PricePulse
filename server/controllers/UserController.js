@@ -39,6 +39,7 @@ class UserController {
         const userId = req.session?.user?.id;
         let {
             link,
+            marketplace,
             filter_price,
             amount = null,
             size = null
@@ -46,7 +47,7 @@ class UserController {
 
         console.log(req.body)
 
-        let json = await parser.parse(link, "WB");
+        let json = await parser.parse(link, marketplace);
 
         console.log(json);
 
@@ -63,7 +64,7 @@ class UserController {
         if (name != null) {
             db.run(
                 `INSERT INTO products(userId,filter_price,amount,p_size,article,marketplace,name,price,sale_price,price_old,sale_price_old,total_stock,image_url) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-                [userId, filter_price, amount, size, article, "WB", name, price, sale_price, price, sale_price, total_quantity, ""],
+                [userId, filter_price, amount, size, article, marketplace, name, price, sale_price, price, sale_price, total_quantity, ""],
                 (err) => { console.log(err) }
             );
         }
@@ -132,6 +133,7 @@ class UserController {
 
             let notify = false;
             let reason = "";
+            let link = "";
 
             if (product.filter_price && product.sale_price <= product.filter_price) {
                 notify = true;
@@ -154,10 +156,16 @@ class UserController {
                 }
             }
 
+            if (product.marketplace === 'WB') {
+                link = `https://www.wildberries.ru/catalog/${product.article}/detail.aspx`;
+            } else if (product.marketplace === 'OZON') {
+                link = `https://www.ozon.ru/product/${product.article}/`
+            } 
+
             if (notify) {
                 await sendNotification({
                     chat_id: user.chat_id,
-                    text: `Обновление по товару: ${product.name}\n\n${reason}\nhttps://www.wildberries.ru/catalog/${product.article}/detail.aspx`,
+                    text: `Обновление по товару: ${product.name}\n\n${reason}\n${link}`,
                     image_url: product.image_url || null
                 });
             }

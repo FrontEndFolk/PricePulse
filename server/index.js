@@ -5,6 +5,7 @@ const cors = require('cors');
 const port = 5000
 
 const router = require('./routes/index');
+const parser = require('./modules/parsingModule');
 const bot = require('./modules/telegramBot');
 const cronJobs = require("./CronJobs");
 

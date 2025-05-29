@@ -27,6 +27,7 @@ export default function App() {
         },
         body: JSON.stringify({
           link: payload.get('link'),
+          marketplace: mp,
           filter_price: payload.get('filter_price'),
           amount: payload.get('amount'),
           size: payload.get('size')
@@ -37,6 +38,12 @@ export default function App() {
     } catch (error) {
       console.error('Error submitting form:', error);
     }
+  };
+
+  const [mp, setMarketplace] = useState('');
+
+  const handleMarketplaceChange = (e) => {
+    setMarketplace(e.target.value);
   };
 
   const { user, setUser } = useContext(AppContext);
@@ -63,9 +70,31 @@ export default function App() {
                   <Input
                     type="text"
                     name="link"
-                    placeholder="https://www.wildberries.ru/catalog/"
+                    placeholder="Ссылка или артикул"
                     required
                   />
+                </label>
+
+                <p>Маркетплейс</p>
+                <label>
+                  <input 
+                    type="radio"
+                    name="marketplace"
+                    value="WB"
+                    checked={mp === 'WB'} // Контролируемое состояние
+                    onChange={handleMarketplaceChange}
+                  />
+                  WB
+                </label>
+                <label>
+                  <input 
+                    type="radio"
+                    name="marketplace"
+                    value="OZON"
+                    checked={mp === 'OZON'} // Контролируемое состояние
+                    onChange={handleMarketplaceChange}
+                  />
+                  OZON
                 </label>
 
                 <p>Отправлять уведомление когда:</p>

@@ -11,7 +11,7 @@ export default function Card({ item }) {
                     Название товара: {item.name}
                 </p>
                 <p className="card__product-price">
-                    Текущая цена: {item.price}
+                    Текущая цена: {item.sale_price}
                 </p>
                 <span className="card__product-article">
                     Артикул: {item.article}
