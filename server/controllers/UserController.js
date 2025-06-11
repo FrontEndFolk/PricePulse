@@ -120,13 +120,13 @@ class UserController {
     }
 
     async cronTest() {
+        console.log("=====================")
         const originalProducts = await fetchAll(db, "SELECT * FROM products");
 
         const parsedResults = await parser.parseAll(originalProducts);
         await parser.saveToDatabase(parsedResults);
-
         const updatedProducts = await fetchAll(db, "SELECT * FROM products");
-
+        console.log(updatedProducts)
         for (const product of updatedProducts) {
             const user = await fetchOne(db, 'SELECT chat_id FROM users WHERE id = ?', [product.userId]);
             if (!user || !user.chat_id) continue;
@@ -135,7 +135,9 @@ class UserController {
             let reason = "";
             let link = "";
 
+            console.log(product.filter_price && product.sale_price <= product.filter_price)
             if (product.filter_price && product.sale_price <= product.filter_price) {
+                console.log("here1")
                 notify = true;
                 reason += `Цена упала до ${product.sale_price}₽ (фильтр: ≤ ${product.filter_price})\n`;
             }
@@ -151,6 +153,7 @@ class UserController {
                 `, [product.id, product.size]);
 
                 if (matchingSize && matchingSize.stock >= 1) {
+                    console.log("here3")
                     notify = true;
                     reason += `Размер ${product.p_size} в наличии: ${matchingSize.stock} шт\n`;
                 }
