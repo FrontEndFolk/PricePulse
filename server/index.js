@@ -6,7 +6,7 @@ const port = 5000
 
 const router = require('./routes/index');
 const parser = require('./modules/parsingModule');
-const bot = require('./modules/telegramBot');
+//const bot = require('./modules/telegramBot');
 const cronJobs = require("./CronJobs");
 
 const app = express()
@@ -37,7 +37,7 @@ async function start() {
     try {
         app.listen(port, async () => {
             console.log('Сервер запущен на 5000');
-            cronJobs.startParsingJob();
+            //cronJobs.startParsingJob();
         });
     } catch (e) {
         console.error('Ошибка запуска сервера:', e);
